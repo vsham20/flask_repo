@@ -3,60 +3,67 @@ from flask import render_template, flash, redirect, make_response, request,url_f
 from flask.ext.login import login_user, logout_user, login_required
 from app import app
 from .forms import LoginForm
+from .models import User
 import openpyxl
 import os
 import requests
 import re
 import urllib
 
+from pymongo import MongoClient
+
 
 @app.route('/')
 def main():
     return render_template('main.html')
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    """form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        es = elasticsearch.Elasticsearch()
-                                res = es.search(index='user', doc_type='user_entry', body={
-                        'filter':{'term':{'_index':'user'}}})['hits']['hits']
-                                for i in res:
-                                    user = i['_source']['email']
-        if user is not None and user.verify_password(form.password.data):
-            login_user(user, form.remember_me.data)
-            return redirect(request.args.get('next') or url_for('/index'))
+    if request.method == "GET":
+        return render_template('login.html')
+    """
+    else:
+        client = MongoClient()
+        db = client.bm
+        details = db.user_entry.find()
+        for i in details:
+            print i['email']
+            print 'fds'
+            print request.form['email']
+            if i['email'] == request.form['email'] and i['password'] ==request.form['pwd']:
+                print "========"
+                print request.form['email']
+                print request.form['pwd']
+                #usr = User(email = user,password_hash = pwd)
+                #login_user(usr)
+                return redirect(url_for('index'))
+            return render_template("login.html")        
+
+"""
+
+    form = LoginForm()
+    print 'dsd'
+    if form.validate_on_submit() is False:
+        print 'xf'
+        user = User.query.filter_by(email=form.email.data).first()  
+        print 'dsfs'                       
+        if user is not None:
+            login_user(user)
+            return redirect(url_for('/index'))
         flash('Invalid username or password.')
     return render_template('login.html', form=form)
-    """
-    if request.method == 'GET':
-        return render_template('login.html')
-    else:    
-        es = elasticsearch.Elasticsearch()
-        res = es.search(index='user', doc_type='user_entry', body={
-                            'filter':{'term':{'_index':'user'}}})['hits']['hits']
-        for i in res:
-            user = i['_source']['email']
-            pwd = i['_source']['password']
-        print user
-        print pwd
-        if user == request.form['email'] and pwd ==request.form['pwd']:
-            print "========"
-            print request.form['email']
-            print request.form['pwd']
-            return redirect(url_for('index'))
-        else:    
-            flash('Invalid username or password.')
-        return render_template("login.html")
 
 @app.route('/register', methods=['GET','POST'])
 def register():
     #form = RegistrationForm()
     if request.method == 'GET':
         return render_template('Register.html')
-    else:
-        
-        es = elasticsearch.Elasticsearch()
+        user = User(request.form['email'], request.form['email'])
+        db.session.add(user)
+        db.session.commit()
+        flash('User successfully registered')
+        return redirect(url_for('login'))
+        """es = elasticsearch.Elasticsearch()
         es.index(index="user",doc_type="user_entry",id=1,body={
                         'email' : '%s' %request.form['email'],
                         'password' : '%s' %request.form['pwd']
@@ -64,7 +71,7 @@ def register():
         print request.form['email']
         print request.form['pwd']
         return redirect(url_for('login'))
-    return render_template("Register.html")
+    return render_template("Register.html")"""
 
 @app.route('/logout')
 #@login_required
@@ -123,7 +130,6 @@ def download():
 @app.route('/Import')
 #print "hfhghghggh"
 def Import():
-
     print "hfhghg"
     """
     url = 'http://127.0.0.1:5000/Download'
@@ -131,7 +137,8 @@ def Import():
     r = response.content
     print r
     """
-    page = urllib.urlopen('/tmp/Download-2').read()
+    page = urllib.urlopen('/tmp/Download-1').read()
+    print page
     list = [k.strip('&') for k in re.findall(r"(?<=39\;).+\&",page)]
     return render_template('import.html', list = list)
 
