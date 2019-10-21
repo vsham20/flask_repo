@@ -38,5 +38,5 @@ six==1.10.0
 tablib==0.9.11
 traitlets==4.0.0
 urllib3==1.7.1
-Werkzeug==0.11.3
+Werkzeug==0.15.3
 wheel==0.29.0
