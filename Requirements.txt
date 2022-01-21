@@ -13,7 +13,7 @@ enum34==1.1.1
 httpagentparser==1.6.0
 idna==2.0
 ipaddress==1.0.14
-ipython==4.0.1
+ipython==7.16.3
 ipython-genutils==0.1.0
 kombu==3.0.30
 ndg-httpsclient==0.3.3
